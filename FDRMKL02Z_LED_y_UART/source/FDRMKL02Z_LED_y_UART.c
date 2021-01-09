@@ -66,6 +66,26 @@ int main(void) {
         		status=uart0LeerByteDesdeBufferCircular(&nuevo_byte);
         		if(status==kStatus_Success){
         			printf("dato:%c\r\n",nuevo_byte);
+				switch (nuevo_byte) {
+				case 'R':
+					GPIO_PortClear(GPIOB, 1u << 6U);
+					break;
+				case 'r':
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					break;
+				case 'V':
+					GPIO_PortClear(GPIOB, 1u << 7U);
+					break;
+				case 'v':
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					break;
+				case 'A':
+					GPIO_PortClear(GPIOB, 1u << 10U);
+					break;
+				case 'a':
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+				}
         		}else{
         			printf("error\r\n");
         		}
