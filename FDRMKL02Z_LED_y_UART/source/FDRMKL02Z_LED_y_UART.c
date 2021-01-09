@@ -56,17 +56,21 @@ int main(void) {
     /* Init FSL debug console. */
     BOARD_InitDebugConsole();
 #endif
+    (void)uart0Inicializar(115200);
 
-    PRINTF("Hello World\n");
+        while(1) {
+        	status_t status;
+        	uint8_t nuevo_byte;
 
-    /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
-    /* Enter an infinite loop, just incrementing a counter. */
-    while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
-    }
+        	if(uart0NuevosDatosEnBuffer()>0){
+        		status=uart0LeerByteDesdeBufferCircular(&nuevo_byte);
+        		if(status==kStatus_Success){
+        			printf("dato:%c\r\n",nuevo_byte);
+        		}else{
+        			printf("error\r\n");
+        		}
+        	}
+        }
+
     return 0 ;
 }
