@@ -27,6 +27,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+/*@brief Programa para encender LEDs RGB utilizando el puerto UART para obtener datos del teclado
+ * Oprimiendo R encendemos el LED ROJO
+ * Oprimiendo r apagamos el LED ROJO
+ * Oprimiendo V encendemos el LED Verde
+ * Oprimiendo v apagamos el LED Verde
+ * Oprimiendo A encendemos el LED Azul
+ * Oprimiendo a apagamos el LED Azul
+ */
  
 /**
  * @file    FDRMKL02Z_LED_y_UART.c
@@ -43,6 +52,10 @@
 
 /* TODO: insert other definitions and declarations here. */
 
+status_t uart0Inicializar(uint32_t);
+uint8_t uart0NuevosDatosEnBuffer(void);
+status_t uart0LeerByteDesdeBufferCircular(uint8_t *);
+
 /*
  * @brief   Application entry point.
  */
@@ -56,32 +69,59 @@ int main(void) {
     /* Init FSL debug console. */
     BOARD_InitDebugConsole();
 #endif
+
+    //Inicializando Puerto UART
     (void)uart0Inicializar(115200);
 
+
+    	//Ciclo Infinito
         while(1) {
+
+        	//Variables
         	status_t status;
         	uint8_t nuevo_byte;
 
+        	//Verificar si hay datos en el Buffer
         	if(uart0NuevosDatosEnBuffer()>0){
+
+        		//Leer los datos del Buffer
         		status=uart0LeerByteDesdeBufferCircular(&nuevo_byte);
+
+        		//Verificar si el estado es correcto
         		if(status==kStatus_Success){
-        			printf("dato:%c\r\n",nuevo_byte);
+
+				//Imprimir que tecla ha sido presionada
+				printf("Tecla: %c\r\n",nuevo_byte);
+
+        		//Switch para encender y apagar LEDs
 				switch (nuevo_byte) {
+
+				//Encender LED Rojo
 				case 'R':
 					GPIO_PortClear(GPIOB, 1u << 6U);
 					break;
+
+				//Apagar LED Rojo
 				case 'r':
 					GPIO_PortSet(GPIOB, 1u << 6U);
 					break;
+
+				//Encender LED Verde
 				case 'V':
 					GPIO_PortClear(GPIOB, 1u << 7U);
 					break;
+
+				//Apagar LED Rojo
 				case 'v':
 					GPIO_PortSet(GPIOB, 1u << 7U);
 					break;
+
+				//Encender LED Azul
 				case 'A':
 					GPIO_PortClear(GPIOB, 1u << 10U);
 					break;
+
+				//Apagar LED Azul
 				case 'a':
 					GPIO_PortSet(GPIOB, 1u << 10U);
 					break;
