@@ -1,40 +1,4 @@
-/*
- * Copyright 2016-2021 NXP
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of NXP Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 /*@brief Programa para encender LEDs RGB utilizando el puerto UART para obtener datos del teclado
- * Oprimiendo R encendemos el LED ROJO
- * Oprimiendo r apagamos el LED ROJO
- * Oprimiendo V encendemos el LED Verde
- * Oprimiendo v apagamos el LED Verde
- * Oprimiendo A encendemos el LED Azul
- * Oprimiendo a apagamos el LED Azul
  */
  
 /**
@@ -55,10 +19,14 @@
 status_t uart0Inicializar(uint32_t);
 uint8_t uart0NuevosDatosEnBuffer(void);
 status_t uart0LeerByteDesdeBufferCircular(uint8_t *);
+//void delay_s(uint32_t segundos);
+void delay_ms(uint32_t milis);
 
 /*
  * @brief   Application entry point.
  */
+
+
 int main(void) {
 
   	/* Init board hardware. */
@@ -80,6 +48,7 @@ int main(void) {
         	//Variables
         	status_t status;
         	uint8_t nuevo_byte;
+        	uint32_t j = 0;
 
         	//Verificar si hay datos en el Buffer
         	if(uart0NuevosDatosEnBuffer()>0){
@@ -98,7 +67,10 @@ int main(void) {
 
 				//Encender LED Rojo
 				case 'R':
-					GPIO_PortClear(GPIOB, 1u << 6U);
+					GPIO_PortClear(GPIOB, 1u << 6U); //Encender LED mediante PortClear
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					//GPIO_PinWrite(GPIOB,6,0); //Encender LED mediante PinWrite
 					break;
 
 				//Apagar LED Rojo
@@ -109,6 +81,8 @@ int main(void) {
 				//Encender LED Verde
 				case 'V':
 					GPIO_PortClear(GPIOB, 1u << 7U);
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
 					break;
 
 				//Apagar LED Rojo
@@ -119,10 +93,93 @@ int main(void) {
 				//Encender LED Azul
 				case 'A':
 					GPIO_PortClear(GPIOB, 1u << 10U);
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 7U);
 					break;
 
 				//Apagar LED Azul
 				case 'a':
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+
+				//Combinaciones
+
+				//Encender Color Amarillo (Yellow)
+				case 'Y':
+					GPIO_PortClear(GPIOB, 1u << 6U);
+					GPIO_PortClear(GPIOB, 1u << 7U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+
+				//Apagar Color Amarillo (Yellow)
+				case 'y':
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					break;
+
+				//Encender Color Magenta
+				case 'M':
+					GPIO_PortClear(GPIOB, 1u << 6U);
+					GPIO_PortClear(GPIOB, 1u << 10U);
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					break;
+
+				//Apagar Color Magenta
+				case 'm':
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+
+				//Encender Color Cyan
+				case 'C':
+					GPIO_PortClear(GPIOB, 1u << 7U);
+					GPIO_PortClear(GPIOB, 1u << 10U);
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					break;
+
+				//Apagar Color Cyan
+				case 'c':
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+
+				//Apagar cualquier color o combinación
+				case 't':
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 7U);
+					GPIO_PortSet(GPIOB, 1u << 10U);
+					break;
+
+				//Combinación automática con duración de 10 segundos
+				case 'P':
+					for (j=0;j<5;j++){
+						GPIO_PortClear(GPIOB, 1u << 6U);
+						GPIO_PortSet(GPIOB, 1u << 7U);
+						GPIO_PortSet(GPIOB, 1u << 10U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 7U);
+						GPIO_PortSet(GPIOB, 1u << 6U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 10U);
+						GPIO_PortSet(GPIOB, 1u << 7U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 6U);
+						GPIO_PortClear(GPIOB, 1u << 7U);
+						GPIO_PortSet(GPIOB, 1u << 10U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 6U);
+						GPIO_PortClear(GPIOB, 1u << 10U);
+						GPIO_PortSet(GPIOB, 1u << 7U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 7U);
+						GPIO_PortClear(GPIOB, 1u << 10U);
+						GPIO_PortSet(GPIOB, 1u << 6U);
+						delay_ms(300);
+						GPIO_PortClear(GPIOB, 1u << 6U);
+						delay_ms(200);
+					}
+					GPIO_PortSet(GPIOB, 1u << 6U);
+					GPIO_PortSet(GPIOB, 1u << 7U);
 					GPIO_PortSet(GPIOB, 1u << 10U);
 					break;
 				}
@@ -130,7 +187,8 @@ int main(void) {
         			printf("error\r\n");
         		}
         	}
-        }
+}
 
     return 0 ;
 }
+
